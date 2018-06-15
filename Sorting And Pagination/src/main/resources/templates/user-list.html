@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <script th:inline="javascript">
+        //thymeleaf to javascript variables
+        /*<![CDATA[*/
+        var sortProperty = [[${sortProperty}]];
+        var sortDesc = [[${sortDesc}]];
+        var currentPage = [[${page.number}]];
+        var pageSize = [[${page.size}]];
+        /*]]>*/
+
+        $(document).ready(function () {
+            //show up/down arrows
+            $("table#emp-table thead th").each(function () {
+                var head = $(this);
+                if (head.attr('data-sort-prop') == sortProperty) {
+                    head.append((sortDesc ? '▾' : '▴'));
+                }
+            });
+
+            //set click action, reload page on clicking with all query params
+            $("table#emp-table thead th").click(function () {
+                var headerSortPropName = $(this).attr("data-sort-prop");
+                if (headerSortPropName == sortProperty) {
+                    window.location.href = window.location.pathname +
+                        '?page=' + currentPage + '&size=' + pageSize + '&sort=' + headerSortPropName + ',' +
+                        (sortDesc ? 'asc' : 'desc');
+                } else {
+                    window.location.href = window.location.pathname +
+                        '?page=' + currentPage + '&size=' + pageSize + '&sort=' + headerSortPropName + ',asc';
+                }
+            });
+        });
+    </script>
+
+    <style>
+
+        /* Space out content a bit */
+        body {
+            padding-top: 1.5rem;
+            padding-bottom: 1.5rem;
+        }
+
+        /* Everything but the jumbotron gets side spacing for mobile first views */
+        .header,
+        .marketing,
+        .footer {
+            padding-right: 1rem;
+            padding-left: 1rem;
+        }
+
+        /* Custom page header */
+        .header {
+            padding-bottom: 1rem;
+            border-bottom: .05rem solid #e5e5e5;
+        }
+
+        /* Make the masthead heading the same height as the navigation */
+        .header h3 {
+            margin-top: 0;
+            margin-bottom: 0;
+            line-height: 3rem;
+        }
+
+        /* Custom page footer */
+        .footer {
+            padding-top: 1.5rem;
+            color: #777;
+            border-top: .05rem solid #e5e5e5;
+        }
+
+        /* Customize container */
+        @media (min-width: 48em) {
+            .container {
+                max-width: 46rem;
+            }
+        }
+
+        .container-narrow > hr {
+            margin: 2rem 0;
+        }
+
+        /* Main marketing message and sign up button */
+        .jumbotron {
+            text-align: center;
+            border-bottom: .05rem solid #e5e5e5;
+        }
+
+        .jumbotron .btn {
+            padding: .75rem 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        /* Supporting marketing content */
+        .marketing {
+            margin: 3rem 0;
+        }
+
+        .marketing p + h4 {
+            margin-top: 1.5rem;
+        }
+
+        /* Responsive: Portrait tablets and up */
+        @media screen and (min-width: 48em) {
+            /* Remove the padding we set earlier */
+            .header,
+            .marketing,
+            .footer {
+                padding-right: 0;
+                padding-left: 0;
+            }
+
+            /* Space out the masthead */
+            .header {
+                margin-bottom: 2rem;
+            }
+
+            /* Remove the bottom border on the jumbotron for visual effect */
+            .jumbotron {
+                border-bottom: 0;
+            }
+        }
+
+    </style>
+
+</head>
+<body>
+
+<div class="container">
+
+    <h2>Employees</h2>
+    <table id="emp-table" class="table">
+        <thead class="thead-dark">
+        <tr>
+            <th data-sort-prop="id" scope="col">Id</th>
+            <th data-sort-prop="name" scope="col">Name</th>
+            <th data-sort-prop="age" scope="col">Age</th>
+        </tr>
+        </thead>
+        <tr th:each="users : ${page.content}">
+            <td th:text="${users.id}" scope="row"></td>
+            <td th:text="${users.name}"></td>
+            <td th:text="${users.age}"></td>
+        </tr>
+    </table>
+    <div class="pagination-div" th:with="sortParam=${sortProperty+','+(sortDesc?'desc':'asc')}">
+        <nav aria-label="...">
+            <ul class="pagination">
+                <li th:classappend="${!page.hasPrevious()} ? disabled: ''" class="page-item">
+                    <a class="page-link" th:href="@{/user-list(page=${page.number-1},size=${page.size},sort=${sortParam})}"
+                       tabindex="-1">Previous</a>
+                </li>
+                <th:block th:each="i: ${#numbers.sequence(0, page.totalPages - 1)}">
+                    <li th:if="${page.number == i}" class="page-item active">
+                        <a class="page-link">[[${i}+1]]</a>
+                    </li>
+                    <li th:unless="${page.number == i}" class="page-item">
+                        <a class="page-link" th:href="@{/user-list(page=${i},size=${page.size},sort=${sortParam})}">[[${i}+1]]</a>
+                    </li>
+                    </span>
+                </th:block>
+
+
+                <li th:classappend="${!page.hasNext()} ? disabled: ''" class="page-item">
+                    <a class="page-link" th:href="@{/user-list(page=${page.number+1},size=${page.size},sort=${sortParam})}">Next</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+
+
+
+
+</div>
+</body>
+</html>
+
+
+
+
